@@ -1,0 +1,28 @@
+- name: Git checkout
+  ansible.builtin.git:
+    repo: 'https://github.com/KernelPanicAUS/public-dotfiles.git'
+    dest: ~/.dotfiles
+    version: master
+
+- name: Create a symbolic link
+  ansible.builtin.file:
+    src: "~/.dotfiles/{{ item }}"
+    dest: "~/{{ item }}"
+    owner: tk
+    group: tk
+    state: hard
+  loop:
+    - .tmux.conf 
+    - .vimrc
+    - .vimrc.bundles
+    - alacritty.yml  
+
+- name: Creates .vim
+  file:
+    path: ~/.vim/autoload
+    state: directory
+
+- name: Download foo.conf
+  get_url:
+    url: 'https://github.com/junegunn/vim-plug.git'
+    dest: ~/.vim/autoload/plug.vim

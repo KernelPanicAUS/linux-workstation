@@ -1,0 +1,58 @@
+---
+- name: Add ykman repository from PPA and install its signing key on Ubuntu target
+  ansible.builtin.apt_repository:
+    repo: ppa:yubico/stable
+
+- name: .rpm upgrade server
+  yum: >
+    update_cache=yes
+    name=*
+    state=latest
+    update_cache=yes
+  when: >
+    ansible_distribution == 'CentOS'
+    or
+    ansible_distribution == 'RedHat'
+
+- name: .deb do dist-upgrade
+  apt: >
+    update_cache=yes
+    cache_valid_time=1200
+    upgrade=dist
+  when: >
+    ansible_distribution == 'Debian'
+    or
+    ansible_distribution == 'Ubuntu'
+    or
+    ansible_distribution == 'Pop!_OS'
+
+- name: Install Packages
+  apt:
+    pkg:
+      - build-essential
+      - git
+      - vim
+      - neovim
+      - python3-jmespath
+      - python3-pip
+      - pcscd
+      - yubikey-manager
+      - scdaemon
+      - gnupg
+      - pinentry-qt
+    state: latest
+    update_cache: true
+
+- name: Download my_package
+  get_url: > 
+    url="https://github.com/rancher-sandbox/rancher-desktop/releases/download/v0.6.0/rancher-desktop_0.6.0_amd64.deb"
+    dest="/home/{{ ansible_env.USER }}/Downloads/rancher-desktop_0.6.0_amd64.deb"
+
+- name: Install my_package
+  apt:
+    deb: "/home/{{ ansible_env.USER }}/Downloads/rancher-desktop_0.6.0_amd64.deb"
+      # sudo: true  
+
+- name: install 1Password
+  apt:
+    deb: "https://downloads.1password.com/linux/debian/amd64/stable/1password-latest.deb"

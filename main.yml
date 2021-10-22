@@ -1,0 +1,55 @@
+- hosts: localhost
+  roles:
+    - role: host-upgrade
+      become: true
+      become_method: sudo
+    - role: dotfiles
+    - role: ansible-tfenv
+    - role: ansible-spotify
+      become: true
+      become_method: sudo
+    - role: ansible-nvm
+      nvm_version: "latest"
+      nvm_node_version: "lts"
+    - role: jetbrains-toolbox
+    - role: ansible-pyenv
+      pyenv_runcom: ~/.bashrc
+      pyenv_versions:
+        - 3.9.7
+      pyenv_global_version: 3.9.7
+    - role: ansible-vscode
+      become: true
+      become_method: sudo
+      vars:
+        vscode_install: true
+        vscode_insiders_install: false
+    - role: ansible-sdkman
+      sdkman_user: tk
+      sdkman_group: tk
+      sdkman_auto_answer: true
+      sdkman_update: true
+      sdkman_install_packages:
+        - { candidate: java, version: 17.0.0.35.1-amzn }
+        - { candidate: gradle, version: '7.2' }
+        - { candidate: maven, version: 3.8.3 }
+        - { candidate: scala, version: 3.0.1 }
+        - { candidate: scala, version: 2.12.3 }
+      sdkman_defaults:
+        gradle: '7.2'
+        maven: 3.8.3
+        java: 17.0.0.35.1-amzn
+      sdkman_flush_caches_before:
+        - temp
+      sdkman_flush_caches_after:
+        - archives
+        - broadcast
+        - candidates
+        - temp
+      sdkman_offline_mode: false
+      sdkman_update_alternatives:
+        - candidate: java
+          name: java
+          link: /usr/bin/java
+        - candidate: java
+          name: javac
+          link: /usr/bin/javac
