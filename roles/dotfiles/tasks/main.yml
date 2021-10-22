@@ -8,8 +8,8 @@
   ansible.builtin.file:
     src: "~/.dotfiles/{{ item }}"
     dest: "~/{{ item }}"
-    owner: tk
-    group: tk
+    owner: "{{ ansible_env.USER }}"
+    group: "{{ ansible_env.USER }}"
     state: hard
   loop:
     - .tmux.conf 
