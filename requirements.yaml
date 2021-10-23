@@ -3,7 +3,7 @@
   version: master
   scm: git
 - name: ansible-spotify
-  src: https://github.com/iknite/ansible-spotify.git
+  src: https://github.com/KernelPanicAUS/ansible-spotify.git
   version: master
   scm: git
 - name: ansible-vscode
