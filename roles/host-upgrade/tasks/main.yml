@@ -29,6 +29,7 @@
 - name: Install Packages
   apt:
     pkg:
+      - tmux
       - build-essential
       - git
       - vim
@@ -40,6 +41,8 @@
       - scdaemon
       - gnupg
       - pinentry-qt
+      - cargo
+      - alacritty
     state: latest
     update_cache: true
 
@@ -56,3 +59,4 @@
 - name: install 1Password
   apt:
     deb: "https://downloads.1password.com/linux/debian/amd64/stable/1password-latest.deb"
+

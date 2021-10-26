@@ -26,3 +26,16 @@
   get_url:
     url: 'https://github.com/junegunn/vim-plug.git'
     dest: ~/.vim/autoload/plug.vim
+
+- name: Creates tmux directory
+  file:
+    path: ~/.tmux/plugins
+    state: directory
+
+- name: Install tmux tpm
+  ansible.builtin.git:
+    repo: 'https://github.com/tmux-plugins/tpm.git'
+    dest: ~/.tmux/plugins/tpm
+    version: master
+
+
