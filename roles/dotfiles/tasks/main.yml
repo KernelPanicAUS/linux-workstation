@@ -1,8 +1,14 @@
-- name: Git checkout
+- name: Check dotfiles are cloned
+  stat:
+    path: ~/.dotfiles
+  register: dotfiles_result
+
+- name: Clone dotfiles repo
   ansible.builtin.git:
     repo: 'https://github.com/KernelPanicAUS/public-dotfiles.git'
     dest: ~/.dotfiles
     version: master
+  when: not dotfiles_result.stat.exists
 
 - name: Create a symbolic link
   ansible.builtin.file:
@@ -22,20 +28,62 @@
     path: ~/.vim/autoload
     state: directory
 
-- name: Download foo.conf
+- name: Check if tmux vim.plug is installed
+  stat:
+    path: ~/.vim/autoload/plug.vim
+  register: vim_plug_result
+
+- name: Download vim.plug
   get_url:
     url: 'https://github.com/junegunn/vim-plug.git'
     dest: ~/.vim/autoload/plug.vim
+  when: not vim_plug_result.stat.exists
 
 - name: Creates tmux directory
   file:
     path: ~/.tmux/plugins
     state: directory
 
+- name: Check if tmux tpm is installed
+  stat:
+    path: ~/.tmux/plugins/tpm
+  register: tpm_result
+
 - name: Install tmux tpm
   ansible.builtin.git:
     repo: 'https://github.com/tmux-plugins/tpm.git'
     dest: ~/.tmux/plugins/tpm
     version: master
+  when: not tpm_result.stat.exists
 
+- name: Check that ~/.gnupg/scdaemon.conf exists
+  stat:
+    path: ~/.gnupg/scdaemon.conf
+  register: scdaemon_result
 
+- name: Template scdaemon.conf
+  ansible.builtin.template:
+    src: templates/scdaemon.conf.j2
+    dest: ~/.gnupg/scdaemon.conf
+  when: not scdaemon_result.stat.exists
+
+- name: Check that ~/.gnupg/gpg-agent.conf exists
+  stat:
+    path: ~/.gnupg/gpg-agent.conf
+  register: gpg_agent_result
+
+- name: Template gnupg.conf
+  ansible.builtin.template:
+    src: templates/gpg-agent.conf.j2
+    dest: ~/.gnupg/gpg-agent.conf
+  when: not gpg_agent_result.stat.exists
+
+- name: Ensure ssh socket config is present in .bashrc
+  blockinfile:
+    dest: "{{ ansible_env.HOME }}/.bashrc"
+    block: |
+      export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+      gpgconf --launch gpg-agent
+    marker: '# {mark} SSH AGENT MANAGED BLOCK'
+    insertbefore: BOF
+    create: yes
