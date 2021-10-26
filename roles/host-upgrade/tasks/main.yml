@@ -3,6 +3,14 @@
   ansible.builtin.apt_repository:
     repo: ppa:yubico/stable
 
+- name: Add gcloud signing key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add gcloud repository
+  apt_repository: repo='deb https://packages.cloud.google.com/apt cloud-sdk main'
+
 - name: .rpm upgrade server
   yum: >
     update_cache=yes
@@ -29,6 +37,10 @@
 - name: Install Packages
   apt:
     pkg:
+     - "{{item}}"
+    state: latest
+    update_cache: true
+  with_items:
       - tmux
       - build-essential
       - git
@@ -43,20 +55,33 @@
       - pinentry-qt
       - cargo
       - alacritty
-    state: latest
-    update_cache: true
+      - apt-transport-https
+      - ca-certificates
+      - google-cloud-sdk
 
-- name: Download my_package
+- name: Check that rancher-desktop is installed
+  stat:
+    path: /usr/bin/rancher-desktop
+  register: rancher_desktop_result
+
+- name: Download rancher-desktop
   get_url: > 
     url="https://github.com/rancher-sandbox/rancher-desktop/releases/download/v0.6.0/rancher-desktop_0.6.0_amd64.deb"
     dest="/home/{{ ansible_env.USER }}/Downloads/rancher-desktop_0.6.0_amd64.deb"
+  when: not rancher_desktop_result.stat.exists
 
-- name: Install my_package
+- name: Install rancher-desktop
   apt:
     deb: "/home/{{ ansible_env.USER }}/Downloads/rancher-desktop_0.6.0_amd64.deb"
-      # sudo: true  
+  when: not rancher_desktop_result.stat.exists
+
+- name: Check that 1pasword is installed
+  stat:
+    path: /usr/bin/1password
+  register: one_password_result
 
 - name: install 1Password
   apt:
     deb: "https://downloads.1password.com/linux/debian/amd64/stable/1password-latest.deb"
+  when: not one_password_result.stat.exists
 
