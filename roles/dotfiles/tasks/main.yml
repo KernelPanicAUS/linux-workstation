@@ -85,5 +85,5 @@
       export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
       gpgconf --launch gpg-agent
     marker: '# {mark} SSH AGENT MANAGED BLOCK'
-    insertbefore: BOF
+    insertafter: EOF
     create: yes
